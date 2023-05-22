@@ -1,26 +1,111 @@
 
-<html>
+<html lang='ko'>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.1/dist/mindar-image-aframe.prod.js"></script>
+    
+	  
+	<script>
+	window.addEventListener('DOMContentLoaded', function(){
+  		const sceneEl = document.querySelector("a-scene"); //entity의 class를 이용해 entity를 파악하고(querySelector이용)
+  		const arSystem = sceneEl.systems["mindar-image-system"]; //출처 : https://hiukim.github.io/mind-ar-js-doc/examples/events-handling
+  		const start = document.querySelector("#ar_start_btn");
+  
+  		const imgmax = 5;
+	
+  		let arwid = [];//ar 오브젝트의 id
+  		const arw = '#arrow';
+  		for(let i = 0; i < imgmax; i++){
+    		arwid.push(arw + i);
+  		}
+  		console.log(arwid);
+  
+  		const num = document.querySelector('#input_num');
+  		const check = document.querySelector('#input_btn');
+  		let user_num=0;
+  
+  
+
+  		check.addEventListener('click', function() {
+    		user_num = Number(num.value);
+    		console.log(typeof user_num);
+    		console.log(user_num);
+        
+    		var arwimg = [];// 사용자의 열 값에 따른 화살표 방향 설정, '설정한 규칙 : 좌석이 뒤로 갈수록 열의 수가 증가함'
+    		for (let i = 1; i < user_num; i++){
+      		arwimg.push('#up'); // 사용자 열보다 앞에 있는 이미지 타겟에는 위를 향하는 화살표 표시
+    		}
+    		arwimg.push('#arrive'); // 사용자 열에 있는 이미지 타겟에는 도착 아이콘 표시
+    		for (let i = user_num+1; i <= imgmax; i++){
+      		arwimg.push('#down'); //사용자 열보다 뒤에 있는 이미지 타겟에는 아래를 향하는 화살표 표시
+    		}
+    		console.log(arwimg);
+    
+
+		for (let i = 0; i < imgmax; i++){
+      		let imageEntity = document.querySelector(arwid[i]);
+      		imageEntity.setAttribute("src", arwimg[i]);
+    		}
+    		console.log('imgsrc');
+  		});
+		
+		
+		
+		start.addEventListener('click', function() {
+			if(check.style.display !== 'none' && num.style.display !== 'none') { // 입력창과 '확인' 버튼 보일 때, 'on' 버튼 누르면 입력창과  '확인' 버튼 사라며 ar 시작
+				check.style.display = 'none';
+				num.style.display = 'none'; 
+				start.innerText = 'now_strat';
+				arSystem.start(); // ar 시작
+				console.log('start');
+			} else if(check.style.display == 'none' && num.style.display == 'none') {
+				check.style.display = 'block';
+				num.style.display = 'block';
+				start.innerText = 'now_stop'
+				arSystem.stop(); // ar 시작
+				console.log('stop');
+			}
+		});
+	});
+			
+	</script>
+
   </head>
+
   <body>
-    <a-scene mindar-image="imageTargetSrc: https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.1/examples/image-tracking/assets/band-example/band.mind;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
-      <a-assets>
-        <a-asset-item id="bearModel" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.1/examples/image-tracking/assets/band-example/bear/scene.gltf"></a-asset-item>
-        <a-asset-item id="raccoonModel" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.1/examples/image-tracking/assets/band-example/raccoon/scene.gltf"></a-asset-item>
-      </a-assets>
+	  <div style="position: absolute; z-index: 1000">				<!-- 출력되는 영상보다 훨씬 앞에 있어야 입력창과 버튼이 동작 가능-->
+		  <input type='number' id='input_num' min='1' max='5' step='1' />
+		  <button id='input_btn'>확인</button>
+		  <button id='ar_start_btn' style="position:fixed; right:10px; top:0px;">now_stop</button>
+	  </div>
+	  <a-scene mindar-image="imageTargetSrc: https://raw.githack.com/yulgim/armind_v2/main/contents/char.mind; autoStart: false;" color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+		  <a-assets>
+			  <img id="up" src="https://raw.githack.com/yulgim/armind_v2/main/contents/up.png" crossorigin="anonymous" />
+			  <img id="down" src="https://raw.githack.com/yulgim/armind_v2/main/contents/down.png" crossorigin="anonymous" />
+			  <img id="arrive" src="https://raw.githack.com/yulgim/armind_v2/main/contents/arrive.png" crossorigin="anonymous" />
+		  </a-assets>
 
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+		  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-      <a-entity mindar-image-target="targetIndex: 0">
-        <a-gltf-model rotation="0 0 0 " position="0 -0.25 0" scale="0.05 0.05 0.05" src="#raccoonModel" animation-mixer>
-      </a-entity>
-      <a-entity mindar-image-target="targetIndex: 1">
-        <a-gltf-model rotation="0 0 0 " position="0 -0.25 0" scale="0.05 0.05 0.05" src="#bearModel" animation-mixer>
-      </a-entity>
-    </a-scene>
+		  <a-entity mindar-image-target="targetIndex: 0">
+			  <a-image id="arrow0" src="#up" position="0 0 0" height="0.552" width="1" rotation="0 0 0" color="black"></a-image>
+		  </a-entity>
+		  <a-entity mindar-image-target="targetIndex: 1">
+			  <a-image id="arrow1" src="#up" position="0 0 0" height="0.552" width="1" rotation="0 0 0" color="black"></a-image>
+		  </a-entity>
+		  <a-entity mindar-image-target="targetIndex: 2">
+			  <a-image id="arrow2" src="#up" position="0 0 0" height="0.552" width="1" rotation="0 0 0" color="black"></a-image>
+		  </a-entity>
+		  <a-entity mindar-image-target="targetIndex: 3">
+			  <a-image id="arrow3" src="#up" position="0 0 0" height="0.552" width="1" rotation="0 0 0" color="black"></a-image>
+		  </a-entity>
+		  <a-entity mindar-image-target="targetIndex: 4">
+			  <a-image id="arrow4" src="#up" position="0 0 0" height="0.552" width="1" rotation="0 0 0" color="black"></a-image>
+		  </a-entity>
+	  </a-scene>
+
+
   </body>
 </html>
